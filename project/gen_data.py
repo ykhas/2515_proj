@@ -16,6 +16,21 @@ def gen_data(func_name = "", dict_args = {}):
 
     return globals()[func_name](dict_args)
 
+
+def create_t_x_grids(t_range, t_dim, x_range, x_dim):
+    # Bounds of 'x' and 't':
+    t_min, t_max = t_range
+    x_min, x_max = x_range
+
+    # Create tensors:
+    t = np.linspace(t_min, t_max, num=t_dim).reshape(t_dim, 1)
+    x = np.linspace(x_min, x_max, num=x_dim).reshape(x_dim, 1)
+
+    xx, tt = np.meshgrid(x, t)
+    X = np.vstack((np.ravel(xx), np.ravel(tt))).T
+
+    return X, t_min, t_max, x_min, x_max, xx, tt, x, t
+
 def heat_1d_boundary_sin_exact(dict_args):
     """
     Returns the exact solution for a given x and t (for sinusoidal initial conditions).
@@ -42,24 +57,11 @@ def heat_1d_boundary_sin_exact(dict_args):
         """
         return np.exp(-(n**2*np.pi**2*a*t)/(L**2))*np.sin(n*np.pi*x/L)
 
+    X, t_min, t_max, x_min, x_max, xx, tt, x, t = create_t_x_grids(t_range, t_dim, x_range, x_dim)
 
-    # Bounds of 'x' and 't':
-    t_min, t_max = t_range
-    x_min, x_max = x_range
-
-    # Create tensors:
-    t = np.linspace(t_min, t_max, num=t_dim).reshape(t_dim, 1)
-    x = np.linspace(x_min, x_max, num=x_dim).reshape(x_dim, 1)
     usol = np.zeros((x_dim, t_dim)).reshape(x_dim, t_dim)
 
     # Obtain the value of the exact solution for each generated point:
     L = x_max - x_min
-    for i in range(x_dim):
-        for j in range(t_dim):
-            usol[i][j] = heat_eq_exact_solution(x[i],t[j], a, L, n)
-
-    xx, tt = np.meshgrid(x, t)
-    X = np.vstack((np.ravel(xx), np.ravel(tt))).T
-    y = usol.T.flatten()[:, None]
-
+    y = heat_eq_exact_solution(xx.T, tt.T, a, L, n).T.flatten()[:,None]
     return X, y
