@@ -31,6 +31,40 @@ def create_t_x_grids(t_range, t_dim, x_range, x_dim):
 
     return X, t_min, t_max, x_min, x_max, xx, tt, x, t
 
+
+def finite_difference_euler(dict_args):
+    '''Return the numerical solution using a forward euler scheme for a given x and t'''
+
+    t_range = dict_args["t_range"]
+    x_range = dict_args["x_range"]
+    t_dim = dict_args["t_dim"]
+    x_dim = dict_args["x_dim"]
+    a = dict_args["a_coeff"]
+    n = dict_args["frequency"]
+
+    X, t_min, t_max, x_min, x_max, xx, tt, x, t = create_t_x_grids(t_range, t_dim, x_range, x_dim)
+
+    h = x[1] - x[0]
+    k = t[1] - t[0]
+    L = x_max - x_min
+    num_space_points = len(x)
+    # create finite difference matrix, assuming boundary conditions are 0
+    d = np.empty(num_space_points); d.fill(-2)
+    subd = np.empty(num_space_points - 1); subd.fill(1)
+    supd = np.empty(num_space_points - 1); supd.fill(1)
+
+    matrix = np.eye(num_space_points) + k / h**2 * ( np.diag(d) + np.diag(subd, -1) + np.diag(supd, 1)); matrix
+
+    def compute_next_time_step(prev_result, matrix):
+        return matrix.dot(prev_result)
+
+    solution = [np.sin(np.pi * x)] # populate with initial condition
+    for i in range(1, len(t)):
+        solution.append(compute_next_time_step(solution[i-1], matrix))
+    return X, solution
+
+
+
 def heat_1d_boundary_sin_exact(dict_args):
     """
     Returns the exact solution for a given x and t (for sinusoidal initial conditions).
