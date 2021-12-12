@@ -13,11 +13,18 @@ def gen_data(func_name = "", dict_args = {}):
 
     if func_name == "":
         return None, None
+    X, x, t = create_xt_grids(
+        dict_args["x_range"],
+        dict_args["x_dim"],
+        dict_args["t_range"],
+        dict_args["t_dim"])
+    y = gen_solution(X, x, t,
+        func_name,
+        dict_args)
 
-    return globals()[func_name](dict_args)
+    return X, y
 
-
-def create_t_x_grids(t_range, t_dim, x_range, x_dim):
+def create_xt_grids(x_range, x_dim, t_range, t_dim):
     # Bounds of 'x' and 't':
     t_min, t_max = t_range
     x_min, x_max = x_range
@@ -29,33 +36,30 @@ def create_t_x_grids(t_range, t_dim, x_range, x_dim):
     xx, tt = np.meshgrid(x, t)
     X = np.vstack((np.ravel(xx), np.ravel(tt))).T
 
-    return X, t_min, t_max, x_min, x_max, xx, tt, x, t
+    return X, x, t
 
-def finite_difference_crank_nicolson(dict_args):
+def gen_solution(X, x, t, func_name = "", dict_args = {}):
+    if func_name == "":
+        return None, None
+
+    return globals()[func_name](X, x, t, dict_args)
+
+def finite_difference_crank_nicolson(X, x, t, dict_args):
     '''Return the numerical solution using a Crank-Nicolson scheme for a given x and t
     Refer to
     https://georg.io/2013/12/03/Crank_Nicolson
     For an example of how to implement this.
-    
+
     '''
-
-    t_range = dict_args["t_range"]
-    x_range = dict_args["x_range"]
-    t_dim = dict_args["t_dim"]
-    x_dim = dict_args["x_dim"]
     a = dict_args["a_coeff"]
-    n = dict_args["frequency"]
-
-    X, t_min, t_max, x_min, x_max, xx, tt, x, t = create_t_x_grids(t_range, t_dim, x_range, x_dim)
 
     h = (x[1] - x[0])[0]
     k = (t[1] - t[0])[0]
-    L = x_max - x_min
 
     num_space_points = len(x)
     sigma = a*k / (2 * h**2)
-    d = np.empty(num_space_points); 
-    d.fill(2*sigma); 
+    d = np.empty(num_space_points);
+    d.fill(2*sigma);
     d[0] = sigma; d[-1] = sigma
     subd = np.empty(num_space_points - 1); subd.fill(-sigma)
     supd = np.empty(num_space_points - 1); supd.fill(-sigma)
@@ -73,23 +77,13 @@ def finite_difference_crank_nicolson(dict_args):
     solution = [np.sin(np.pi * x).squeeze()] # populate with initial condition
     for i in range(1, len(t)):
         solution.append(compute_next_time_step(solution[i-1], A_matrix, B_matrix))
-    return X, np.array(solution).reshape(-1, 1)
+    return np.array(solution).reshape(-1, 1)
 
-def finite_difference_euler(dict_args):
+def finite_difference_euler(X, x, t, dict_args):
     '''Return the numerical solution using a forward euler scheme for a given x and t'''
-
-    t_range = dict_args["t_range"]
-    x_range = dict_args["x_range"]
-    t_dim = dict_args["t_dim"]
-    x_dim = dict_args["x_dim"]
-    a = dict_args["a_coeff"]
-    n = dict_args["frequency"]
-
-    X, t_min, t_max, x_min, x_max, xx, tt, x, t = create_t_x_grids(t_range, t_dim, x_range, x_dim)
 
     h = x[1] - x[0]
     k = t[1] - t[0]
-    L = x_max - x_min
     num_space_points = len(x)
     # create finite difference matrix, assuming boundary conditions are 0
     d = np.empty(num_space_points); d.fill(-2)
@@ -104,9 +98,9 @@ def finite_difference_euler(dict_args):
     solution = [np.sin(np.pi * x)] # populate with initial condition
     for i in range(1, len(t)):
         solution.append(compute_next_time_step(solution[i-1], matrix))
-    return X, np.array(solution).reshape(-1, 1)
+    return np.array(solution).reshape(-1, 1)
 
-def heat_1d_boundary_sin_exact(dict_args):
+def heat_1d_boundary_sin_exact(X, x, t, dict_args):
     """
     Returns the exact solution for a given x and t (for sinusoidal initial conditions).
 
@@ -114,10 +108,6 @@ def heat_1d_boundary_sin_exact(dict_args):
     ----------
     func_name : str
     """
-    t_range = dict_args["t_range"]
-    x_range = dict_args["x_range"]
-    t_dim = dict_args["t_dim"]
-    x_dim = dict_args["x_dim"]
     a = dict_args["a_coeff"]
     n = dict_args["frequency"]
 
@@ -132,11 +122,7 @@ def heat_1d_boundary_sin_exact(dict_args):
         """
         return np.exp(-(n**2*np.pi**2*a*t)/(L**2))*np.sin(n*np.pi*x/L)
 
-    X, t_min, t_max, x_min, x_max, xx, tt, x, t = create_t_x_grids(t_range, t_dim, x_range, x_dim)
-
-    usol = np.zeros((x_dim, t_dim)).reshape(x_dim, t_dim)
-
     # Obtain the value of the exact solution for each generated point:
-    L = x_max - x_min
-    y = heat_eq_exact_solution(xx.T, tt.T, a, L, n).T.flatten()[:,None]
-    return X, y
+    L = x.max() - x.min()
+    xx, tt = np.meshgrid(x, t)
+    return heat_eq_exact_solution(xx.T, tt.T, a, L, n).T.flatten()[:,None]
