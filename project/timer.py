@@ -39,6 +39,6 @@ class Timer:
             test_function()
             accumulated_time = accumulated_time + self.stop()
         self.start()
-        packed_return = *test_function(),
+        packed_return = test_function()
         self.average_time  = (accumulated_time + self.stop())/self.timer_repeat_times
         return packed_return
