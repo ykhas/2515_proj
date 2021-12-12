@@ -9,12 +9,14 @@ def test_scheme(scheme_name, data_dict):
     print("function name: ", scheme_name)
     print("x_shape", X.shape)
     print("y_shape", y.shape)
-    Plotter(1,1).plot_2d_y(X, y)
+    plotter = Plotter(1,2)
+    plotter.plot_2d_y(X, y, scheme_name)
+    plotter.plot_2d_colormesh(y, data_dict["x_dim"], data_dict["t_dim"], scheme_name)
 
 test_scheme("heat_1d_boundary_sin_exact", {
     "x_range": (0, 1),
     "t_range": (0, 1),
-    "x_dim": 100,
+    "x_dim": 200,
     "t_dim": 100,
     "a_coeff": 0.4,
     "frequency": 1,
