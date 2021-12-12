@@ -73,7 +73,7 @@ def finite_difference_crank_nicolson(dict_args):
     solution = [np.sin(np.pi * x).squeeze()] # populate with initial condition
     for i in range(1, len(t)):
         solution.append(compute_next_time_step(solution[i-1], A_matrix, B_matrix))
-    return X, solution
+    return X, np.array(solution).reshape(-1, 1)
 
 def finite_difference_euler(dict_args):
     '''Return the numerical solution using a forward euler scheme for a given x and t'''
@@ -104,9 +104,7 @@ def finite_difference_euler(dict_args):
     solution = [np.sin(np.pi * x)] # populate with initial condition
     for i in range(1, len(t)):
         solution.append(compute_next_time_step(solution[i-1], matrix))
-    return X, solution
-
-
+    return X, np.array(solution).reshape(-1, 1)
 
 def heat_1d_boundary_sin_exact(dict_args):
     """
