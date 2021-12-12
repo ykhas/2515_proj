@@ -122,10 +122,14 @@ def create_model(const_params: PinnConstParam, test_params: PinnTestParam):
 
 def train_model(model):
     # Build and train the model:
+    ti = Timer()
+    ti.start()
     model.compile("adam", lr=1e-3)
     model.train(epochs=20000)
     model.compile("L-BFGS")
     losshistory, train_state = model.train()
+    ti.stop()
+    print("Training time: "+ ti.str_elapsed_time())
 
     return losshistory, train_state
 
