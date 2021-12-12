@@ -192,12 +192,18 @@ def predict_and_output_report(const_params: PinnConstParam, model,
         const_params.test_t_dim)
 
     # IV. Performance metrics
-    errors = compute_errors(const_params.y_analytical, y_pred)
-    plotter.plot_2d_y(const_params.X_test, errors, "PINN vs Analytical errors")
+    numerical_analytical_errors = compute_errors(const_params.y_analytical, const_params.y_numerical)
     plotter.plot_2d_colormesh(
-        errors,
+        numerical_analytical_errors,
         const_params.test_x_dim,
-        const_params.test_t_dim)
+        const_params.test_t_dim,
+        "Numerical vs Analytical errors")
+    pinn_analytical_errors = compute_errors(const_params.y_analytical, y_pred)
+    plotter.plot_2d_colormesh(
+        pinn_analytical_errors,
+        const_params.test_x_dim,
+        const_params.test_t_dim,
+        "PINN vs Analytical errors")
 
     if losshistory and train_state:
         dde.saveplot(losshistory, train_state, issave=False, isplot=True)
