@@ -137,19 +137,23 @@ def plot_train_data(geomtime_data):
     X_bc_train = geomtime_data.bc_points()
     print("train_bc_points shape", X_bc_train.shape)
 
-    plotter = Plotter(1, 2)
+    plotter = Plotter(2, 2)
     plotter.plot_2d(X_bc_train, "train_bc_points")
 
-    # Train points are not used anymore because deepxde train_points(),
-    # always generate random train points, but it is not what we are doing to
-    # train the nn, in train_next_batch(). train_next_batch, isnt random!!
-    # X_train_points = geomtime_data.train_points()
-    # print("train_points shape", X_train_points.shape)
-    # plotter.plot_2d(X_train_points, "train_domain_points")
+    # Train points give random values
+    X_train_points = geomtime_data.train_points()
+    print("train_points shape", X_train_points.shape)
+    plotter.plot_2d(X_train_points, "train_points")
 
+    # Train next batch resamples at every epoch because of
+    # PDEResidualResampler, and resample_train_points()
     X_train_next_batch, _, _ = geomtime_data.train_next_batch()
     print("train_next_batch shape", X_train_next_batch.shape)
     plotter.plot_2d(X_train_next_batch, "train_next_batch")
+
+    geomtime_data.resample_train_points()
+    X_train_next_batch, _, _ = geomtime_data.train_next_batch()
+    plotter.plot_2d(X_train_next_batch, "resampled_train_next_batch")
 
 def plot_analytical_and_numerical(plotter, const_params: PinnConstParam):
     # I. Analytical test solution
