@@ -217,11 +217,11 @@ def predict_and_output_report(const_params: PinnConstParam, model,
     print("--- Numerical vs Analytical Report ---")
     output_performance(const_params.y_analytical, const_params.y_numerical)
 
-    f = model.predict(const_params.X_test, operator=pde)
-    print("--- PINN vs Analytical Report ---")
+    # f = model.predict(const_params.X_test, operator=pde)
+    print("--- NN vs Analytical Report ---")
     output_performance(const_params.y_analytical, y_pred)
-    print("Mean residual:", np.mean(np.absolute(f)))
-    print("L2 relative error:", dde.metrics.l2_relative_error(const_params.y_analytical, y_pred))
+    # print("Mean residual:", np.mean(np.absolute(f)))
+    # print("L2 relative error:", dde.metrics.l2_relative_error(const_params.y_analytical, y_pred))
     # np.savetxt("test.dat", np.hstack((X_test, y_analytical, y_pred)))
 
     print(const_params)

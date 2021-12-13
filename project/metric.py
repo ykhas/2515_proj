@@ -1,7 +1,8 @@
 import sklearn.metrics
+import numpy as np
 
 def compute_errors(y_true, y_test):
-    return y_test-y_true
+    return np.abs(y_test-y_true)
 
 def compute_mean_abs_error(y_true, y_predict):
     return sklearn.metrics.mean_absolute_error(y_true, y_predict)
