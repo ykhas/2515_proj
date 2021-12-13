@@ -4,7 +4,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 class Plotter:
     def __init__(self, rows, cols):
         self.fig = plt.figure()
-        standard_size_in = 5
+        standard_size_in = 7
         self.standard_marker_size = 1
         self.fig.set_figheight(standard_size_in * rows)
         self.fig.set_figwidth(standard_size_in * cols)
