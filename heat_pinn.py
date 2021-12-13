@@ -213,11 +213,14 @@ def predict_and_output_report(const_params: PinnConstParam, model,
         dde.saveplot(losshistory, train_state, issave=False, isplot=True)
         print("IGNORE ^^^ PDE test data SOLUTION PLOT!!! ^^^")
 
+    print("--- Numerical vs Analytical Report ---")
+    output_performance(const_params.y_numerical, y_pred)
+
     f = model.predict(const_params.X_test, operator=pde)
-    print("---Performance measured wrt analytical solution---")
+    print("--- PINN vs Analytical Report ---")
+    output_performance(const_params.y_analytical, y_pred)
     print("Mean residual:", np.mean(np.absolute(f)))
     print("L2 relative error:", dde.metrics.l2_relative_error(const_params.y_analytical, y_pred))
-    output_performance(const_params.y_analytical, y_pred)
     # np.savetxt("test.dat", np.hstack((X_test, y_analytical, y_pred)))
 
     print(const_params)
