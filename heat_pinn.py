@@ -185,9 +185,10 @@ def predict_and_output_report(const_params: PinnConstParam, model,
     plot_analytical_and_numerical(plotter, const_params)
 
     # III. Physics Informed Neural Network test solution``
-    function_name = "PINN prediction"
+    function_name = "NN prediction"
     ti = Timer(TIMER_REPEAT_TIMES)
     y_pred = ti.time_average(lambda : model.predict(const_params.X_test))
+    y_pred = y_pred.reshape(-1, 1)
     print(function_name + ": "+ ti.str_average())
     plotter.plot_2d_y(const_params.X_test, y_pred, function_name)
     plotter.plot_2d_colormesh(
@@ -207,7 +208,7 @@ def predict_and_output_report(const_params: PinnConstParam, model,
         pinn_analytical_errors,
         const_params.test_x_dim,
         const_params.test_t_dim,
-        "PINN vs Analytical errors")
+        "NN vs Analytical errors")
 
     if losshistory and train_state:
         dde.saveplot(losshistory, train_state, issave=False, isplot=True)

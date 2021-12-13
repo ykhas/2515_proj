@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-
+import copy
 class Plotter:
     def __init__(self, rows, cols):
         self.fig = plt.figure()
@@ -26,7 +26,7 @@ class Plotter:
 
     def plot_2d_colormesh(self,y , x_dim, t_dim, label = ""):
         ax = self.fig.add_subplot(self.rows, self.cols, self.idx)
-        c = ax.pcolormesh(y[:, 0].reshape(t_dim, x_dim))
+        c = ax.pcolormesh(y.flatten().reshape(t_dim, x_dim))
         divider = make_axes_locatable(ax)
         cax = divider.append_axes('right', size='5%', pad=0.05)
         self.fig.colorbar(c, cax=cax, orientation='vertical')
