@@ -56,11 +56,11 @@ def finite_difference_crank_nicolson(X, x, t, dict_args):
     h = (x[1] - x[0])[0]
     k = (t[1] - t[0])[0]
 
-    num_space_points = len(x)
+    num_space_points = len(x)-2
     sigma = a*k / (2 * h**2)
     d = np.empty(num_space_points);
     d.fill(2*sigma);
-    d[0] = sigma; d[-1] = sigma
+    # d[0] = sigma; d[-1] = sigma
     subd = np.empty(num_space_points - 1); subd.fill(-sigma)
     supd = np.empty(num_space_points - 1); supd.fill(-sigma)
 
@@ -69,9 +69,10 @@ def finite_difference_crank_nicolson(X, x, t, dict_args):
     B_matrix = np.eye(num_space_points) - D_matrix
 
     def compute_next_time_step(prev_result, A_matrix, B_matrix):
-        u = np.linalg.solve(A_matrix, np.dot(B_matrix, prev_result))
-        u[0] = 0
-        u[-1] = 0
+        u = np.concatenate((
+            [0],
+            np.linalg.solve(A_matrix, np.dot(B_matrix, prev_result[1:-1])),
+            [0]))
         return u
 
     solution = [np.sin(np.pi * x).squeeze()] # populate with initial condition
