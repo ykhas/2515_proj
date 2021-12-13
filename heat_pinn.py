@@ -214,7 +214,7 @@ def predict_and_output_report(const_params: PinnConstParam, model,
         print("IGNORE ^^^ PDE test data SOLUTION PLOT!!! ^^^")
 
     print("--- Numerical vs Analytical Report ---")
-    output_performance(const_params.y_numerical, y_pred)
+    output_performance(const_params.y_analytical, const_params.y_numerical)
 
     f = model.predict(const_params.X_test, operator=pde)
     print("--- PINN vs Analytical Report ---")
